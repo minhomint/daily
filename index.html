@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>매일매일 암기왕 📚</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .hidden-word {
+            background-color: #1f2937;
+            color: #1f2937;
+            border-radius: 4px;
+            padding: 0 4px;
+        }
+        .highlighted-word {
+            background-color: #fef08a;
+            border-radius: 4px;
+            padding: 0 4px;
+        }
+        .underlined-word {
+            text-decoration: underline;
+            text-decoration-color: #3b82f6;
+            text-decoration-thickness: 2px;
+        }
+        .word-clickable {
+            cursor: pointer;
+            display: inline-block;
+            transition: opacity 0.2s;
+        }
+        .word-clickable:hover {
+            opacity: 0.7;
+        }
+        .study-card {
+            transition: all 0.3s;
+        }
+        .study-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 min-h-screen">
+    <div id="app" class="p-6 max-w-7xl mx-auto">
+        <!-- 헤더 -->
+        <div class="bg-white rounded-2xl shadow-xl p-6 mb-6">
+            <div class="flex justify-between items-center mb-4">
+                <h1 class="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                    📚 매일매일 암기왕
+                </h1>
+                <button onclick="app.toggleView()" class="px-6 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all shadow-md font-medium">
+                    <span id="viewToggleBtn">📋 목록 보기</span>
+                </button>
+            </div>
+            
+            <div class="flex items-center gap-4">
+                <span class="text-2xl">📅</span>
+                <input type="date" id="dateInput" onchange="app.changeDate(this.value)" class="flex-1 px-4 py-3 border-2 border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-lg">
+            </div>
+        </div>
+
+        <!-- 목록 뷰 -->
+        <div id="listView" class="hidden">
+            <div class="bg-white rounded-2xl shadow-xl p-6 mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">📊 학습 현황</h2>
+                <div id="studyList" class="space-y-3"></div>
+                <div id="emptyList" class="text-center py-20 text-gray-400">
+                    <p class="text-xl mb-2">📝</p>
+                    <p>아직 학습 내용이 없습니다</p>
+                    <p class="text-sm">상세 보기로 이동하여 과목과 내용을 추가해보세요!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 상세 뷰 -->
+        <div id="detailView">
+            <!-- 과목 관리 -->
+            <div class="bg-white rounded-2xl shadow-xl p-6 mb-6">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">📚 과목 선택</h2>
+                
+                <div id="subjectList" class="flex flex-wrap gap-2 mb-4"></div>
+                <div id="emptySubject" class="text-center py-8 text-gray-400 mb-4">
+                    과목을 추가해주세요
+                </div>
+
+                <div class="flex gap-2">
+                    <input type="text" id="newSubjectInput" placeholder="새 과목 추가 (예: 한국사, TOEIC, 자격증...)" class="flex-1 px-4 py-3 border-2 border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" onkeypress="if(event.key==='Enter') app.addSubject()">
+                    <button onclick="app.addSubject()" class="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all shadow-md font-medium">
+                        ➕ 추가
+                    </button>
+                </div>
+            </div>
+
+            <div id="studyContent" class="hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- 암기 내용 -->
+                    <div class="lg:col-span-2 bg-white rounded-2xl shadow-xl p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-xl font-bold text-gray-800">✍️ 암기 내용</h2>
+                            <button onclick="app.toggleMode()" id="modeBtn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-all font-medium">
+                                📝 편집 모드
+                            </button>
+                        </div>
+
+                        <div id="modeControls" class="hidden mb-4 flex gap-2">
+                            <button onclick="app.setCurrentMode('hide')" id="hideBtn" class="flex-1 px-3 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-all font-medium">
+                                🙈 숨기기
+                            </button>
+                            <button onclick="app.setCurrentMode('highlight')" id="highlightBtn" class="flex-1 px-3 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-all font-medium">
+                                ✨ 형광펜
+                            </button>
+                            <button onclick="app.setCurrentMode('underline')" id="underlineBtn" class="flex-1 px-3 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-all font-medium">
+                                📏 밑줄
+                            </button>
+                            <button onclick="app.resetStates()" class="px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all font-medium">
+                                🔄 초기화
+                            </button>
+                        </div>
+
+                        <textarea id="contentInput" placeholder="암기할 내용을 입력하세요...&#10;&#10;💡 암기 모드에서 단어를 클릭하여 학습하세요!" class="w-full h-96 px-4 py-3 border-2 border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none text-lg leading-relaxed" oninput="app.updateContent()"></textarea>
+                        
+                        <div id="contentDisplay" class="hidden border-2 border-purple-200 rounded-lg p-4 min-h-96 bg-purple-50">
+                            <p class="text-sm text-purple-600 mb-3" id="modeHint"></p>
+                            <div id="contentWords" class="text-lg leading-relaxed whitespace-pre-wrap"></div>
+                        </div>
+                    </div>
+
+                    <!-- 두문자/요약 -->
+                    <div class="bg-white rounded-2xl shadow-xl p-6">
+                        <h2 class="text-xl font-bold text-gray-800 mb-4">💡 두문자 & 요약</h2>
+                        <textarea id="mnemonicInput" placeholder="두문자, 요약, 메모 등을 작성하세요...&#10;&#10;✏️ 예시:&#10;• 핵심 키워드&#10;• 암기 팁&#10;• 연관 개념&#10;• 두문자 암기법" class="w-full h-96 px-4 py-3 border-2 border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none" oninput="app.updateMnemonic()"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 사용 팁 -->
+        <div class="mt-6 bg-gradient-to-r from-purple-100 to-pink-100 rounded-2xl p-6 border-2 border-purple-200">
+            <h3 class="font-bold text-purple-800 mb-3 text-lg">💡 사용 방법</h3>
+            <ul class="text-sm text-purple-700 space-y-2">
+                <li>✅ 날짜를 선택하고 과목을 추가하세요</li>
+                <li>✅ 편집 모드에서 암기할 내용과 두문자를 입력하세요</li>
+                <li>✅ 암기 모드로 전환하여 단어를 클릭해 학습하세요</li>
+                <li>✅ 목록 보기에서 전체 학습 현황을 확인하세요</li>
+                <li>⭐ 매일 방문하여 꾸준히 학습하는 습관을 만들어보세요!</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const app = {
+            selectedDate: new Date().toISOString().split('T')[0],
+            subjects: [],
+            selectedSubject: null,
+            studyData: {},
+            isMemoryMode: false,
+            currentMode: 'hide',
+            currentView: 'detail',
+
+            init() {
+                document.getElementById('dateInput').value = this.selectedDate;
+                this.render();
+            },
+
+            changeDate(date) {
+                this.selectedDate = date;
+                this.render();
+            },
+
+            addSubject() {
+                const input = document.getElementById('newSubjectInput');
+                const subject = input.value.trim();
+                if (subject && !this.subjects.includes(subject)) {
+                    this.subjects.push(subject);
+                    this.selectedSubject = subject;
+                    input.value = '';
+                    this.render();
+                }
+            },
+
+            deleteSubject(subject) {
+                if (this.subjects.length > 0) {
+                    this.subjects = this.subjects.filter(s => s !== subject);
+                    if (this.selectedSubject === subject) {
+                        this.selectedSubject = this.subjects[0] || null;
+                    }
+                    this.render();
+                }
+            },
+
+            selectSubject(subject) {
+                this.selectedSubject = subject;
+                this.isMemoryMode = false;
+                this.render();
+            },
+
+            getCurrentData() {
+                if (!this.studyData[this.selectedDate]) {
+                    this.studyData[this.selectedDate] = {};
+                }
+                if (!this.studyData[this.selectedDate][this.selectedSubject]) {
+                    this.studyData[this.selectedDate][this.selectedSubject] = {
+                        content: '',
+                        mnemonic: '',
+                        hiddenWords: new Set(),
+                        highlights: new Set(),
+                        underlines: new Set()
+                    };
+                }
+                return this.studyData[this.selectedDate][this.selectedSubject];
+            },
+
+            updateContent() {
+                const data = this.getCurrentData();
+                data.content = document.getElementById('contentInput').value;
+            },
+
+            updateMnemonic() {
+                const data = this.getCurrentData();
+                data.mnemonic = document.getElementById('mnemonicInput').value;
+            },
+
+            toggleMode() {
+                this.isMemoryMode = !this.isMemoryMode;
+                if (!this.isMemoryMode) {
+                    this.resetStates();
+                }
+                this.render();
+            },
+
+            setCurrentMode(mode) {
+                this.currentMode = mode;
+                this.render();
+            },
+
+            toggleWordState(index) {
+                const data = this.getCurrentData();
+                const field = this.currentMode === 'hide' ? 'hiddenWords' : 
+                             this.currentMode === 'highlight' ? 'highlights' : 'underlines';
+                
+                if (data[field].has(index)) {
+                    data[field].delete(index);
+                } else {
+                    data[field].add(index);
+                }
+                this.renderContent();
+            },
+
+            resetStates() {
+                const data = this.getCurrentData();
+                data.hiddenWords = new Set();
+                data.highlights = new Set();
+                data.underlines = new Set();
+                this.renderContent();
+            },
+
+            toggleView() {
+                this.currentView = this.currentView === 'detail' ? 'list' : 'detail';
+                this.render();
+            },
+
+            renderSubjects() {
+                const container = document.getElementById('subjectList');
+                const empty = document.getElementById('emptySubject');
+                
+                if (this.subjects.length === 0) {
+                    container.innerHTML = '';
+                    empty.classList.remove('hidden');
+                    document.getElementById('studyContent').classList.add('hidden');
+                    return;
+                }
+                
+                empty.classList.add('hidden');
+                container.innerHTML = this.subjects.map(subject => `
+                    <div class="relative group">
+                        <button onclick="app.selectSubject('${subject}')" class="px-5 py-2 rounded-lg font-medium transition-all shadow-md ${
+                            this.selectedSubject === subject
+                                ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white'
+                                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                        }">
+                            ${subject}
+                        </button>
+                        <button onclick="app.deleteSubject('${subject}')" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 opacity-0 group-hover:opacity-100 transition-opacity text-xs">
+                            ✕
+                        </button>
+                    </div>
+                `).join('');
+
+                if (this.selectedSubject) {
+                    document.getElementById('studyContent').classList.remove('hidden');
+                }
+            },
+
+            renderContent() {
+                const data = this.getCurrentData();
+                const contentInput = document.getElementById('contentInput');
+                const contentDisplay = document.getElementById('contentDisplay');
+                const mnemonicInput = document.getElementById('mnemonicInput');
+                const modeBtn = document.getElementById('modeBtn');
+                const modeControls = document.getElementById('modeControls');
+
+                contentInput.value = data.content;
+                mnemonicInput.value = data.mnemonic;
+
+                if (this.isMemoryMode) {
+                    contentInput.classList.add('hidden');
+                    contentDisplay.classList.remove('hidden');
+                    modeBtn.className = 'px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg hover:from-green-600 hover:to-emerald-600 transition-all font-medium shadow-md';
+                    modeBtn.textContent = '🎯 암기 모드';
+                    modeControls.classList.remove('hidden');
+
+                    const modeHint = document.getElementById('modeHint');
+                    const hints = {
+                        hide: '💡 단어를 클릭하여 숨기세요',
+                        highlight: '💡 단어를 클릭하여 하이라이트하세요',
+                        underline: '💡 단어를 클릭하여 밑줄을 그으세요'
+                    };
+                    modeHint.textContent = hints[this.currentMode];
+
+                    // 모드 버튼 스타일
+                    ['hideBtn', 'highlightBtn', 'underlineBtn'].forEach(id => {
+                        document.getElementById(id).className = 'flex-1 px-3 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-all font-medium';
+                    });
+                    
+                    const activeStyles = {
+                        hide: 'flex-1 px-3 py-2 bg-gray-800 text-white rounded-lg transition-all font-medium shadow-md',
+                        highlight: 'flex-1 px-3 py-2 bg-yellow-400 text-gray-800 rounded-lg transition-all font-medium shadow-md',
+                        underline: 'flex-1 px-3 py-2 bg-blue-500 text-white rounded-lg transition-all font-medium shadow-md'
+                    };
+                    document.getElementById(this.currentMode + 'Btn').className = activeStyles[this.currentMode];
+
+                    // 단어 렌더링
+                    if (!data.content) {
+                        document.getElementById('contentWords').innerHTML = '<p class="text-gray-400 text-center py-20">암기할 내용을 먼저 입력해주세요</p>';
+                        return;
+                    }
+
+                    const words = data.content.split(/(\s+)/);
+                    const html = words.map((word, index) => {
+                        if (!word.trim()) return word;
+                        
+                        const isHidden = data.hiddenWords.has(index);
+                        const isHighlighted = data.highlights.has(index);
+                        const isUnderlined = data.underlines.has(index);
+                        
+                        let classes = 'word-clickable ';
+                        if (isHidden) classes += 'hidden-word ';
+                        if (isHighlighted) classes += 'highlighted-word ';
+                        if (isUnderlined) classes += 'underlined-word ';
+                        
+                        return `<span class="${classes}" onclick="app.toggleWordState(${index})">${word}</span>`;
+                    }).join('');
+
+                    document.getElementById('contentWords').innerHTML = html;
+                } else {
+                    contentInput.classList.remove('hidden');
+                    contentDisplay.classList.add('hidden');
+                    modeBtn.className = 'px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-all font-medium';
+                    modeBtn.textContent = '📝 편집 모드';
+                    modeControls.classList.add('hidden');
+                }
+            },
+
+            renderListView() {
+                const listView = document.getElementById('listView');
+                const detailView = document.getElementById('detailView');
+                const viewToggleBtn = document.getElementById('viewToggleBtn');
+
+                if (this.currentView === 'list') {
+                    listView.classList.remove('hidden');
+                    detailView.classList.add('hidden');
+                    viewToggleBtn.textContent = '✏️ 상세 보기';
+
+                    const studyList = document.getElementById('studyList');
+                    const emptyList = document.getElementById('emptyList');
+                    
+                    const items = [];
+                    for (let date in this.studyData) {
+                        for (let subject in this.studyData[date]) {
+                            const data = this.studyData[date][subject];
+                            if (data.content || data.mnemonic) {
+                                items.push({ date, subject, data });
+                            }
+                        }
+                    }
+
+                    if (items.length === 0) {
+                        studyList.innerHTML = '';
+                        emptyList.classList.remove('hidden');
+                    } else {
+                        emptyList.classList.add('hidden');
+                        items.sort((a, b) => b.date.localeCompare(a.date));
+                        
+                        studyList.innerHTML = items.map(item => {
+                            const preview = item.data.content.substring(0, 100) + (item.data.content.length > 100 ? '...' : '');
+                            return `
+                                <div class="study-card bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-200 rounded-xl p-4 cursor-pointer" onclick="app.goToStudy('${item.date}', '${item.subject}')">
+                                    <div class="flex justify-between items-start mb-2">
+                                        <div>
+                                            <span class="inline-block px-3 py-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm rounded-full font-medium mb-2">${item.subject}</span>
+                                            <p class="text-sm text-gray-600">📅 ${item.date}</p>
+                                        </div>
+                                    </div>
+                                    <p class="text-gray-700 text-sm line-clamp-2">${preview || '내용 없음'}</p>
+                                    ${item.data.mnemonic ? '<p class="text-xs text-purple-600 mt-2">💡 메모 있음</p>' : ''}
+                                </div>
+                            `;
+                        }).join('');
+                    }
+                } else {
+                    listView.classList.add('hidden');
+                    detailView.classList.remove('hidden');
+                    viewToggleBtn.textContent = '📋 목록 보기';
+                }
+            },
+
+            goToStudy(date, subject) {
+                this.selectedDate = date;
+                this.selectedSubject = subject;
+                if (!this.subjects.includes(subject)) {
+                    this.subjects.push(subject);
+                }
+                this.currentView = 'detail';
+                document.getElementById('dateInput').value = date;
+                this.render();
+            },
+
+            render() {
+                this.renderSubjects();
+                if (this.selectedSubject) {
+                    this.renderContent();
+                }
+                this.renderListView();
+            }
+        };
+
+        // 초기화
+        app.init();
+    </script>
+</body>
+</html>
