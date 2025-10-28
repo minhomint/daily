@@ -87,36 +87,13 @@
             </div>
         </div>
 
-        <!-- 마지막 업데이트 시간 -->
-        <div class="text-center mt-4 text-xs md:text-sm text-gray-500">
-            <p>마지막 업데이트: <span id="last-update">-</span></p>
-            <p class="mt-1">💖 민호 사랑해요! 💖</p>
-        </div>
-    </div>
 
-    <script>
-        // ⚠️ 여기에 "내게남은 사랑을 드릴께요" YouTube 영상 ID를 입력하세요
-        const VIDEO_ID = 'nczfiJBMA2U';  // 실제 영상 ID로 교체 필요
-        
-        const MIN_TIME = 45;  // 45초
-        const MAX_TIME = 50;  // 50초
         
         let player;
         let checkInterval;
         let targetStopTime = 0;
 
-        // 숫자 포맷팅 함수
-        function formatNumber(num) {
-            return num.toLocaleString('ko-KR');
-        }
 
-        // 시간 포맷팅 함수
-        function formatTime() {
-            const now = new Date();
-            return now.toLocaleTimeString('ko-KR');
-        }
-
-        // YouTube IFrame API 로드
         var tag = document.createElement('script');
         tag.src = 'https://www.youtube.com/iframe_api';
         var firstScriptTag = document.getElementsByTagName('script')[0];
@@ -200,35 +177,7 @@
             }, 100);
         }
 
-        // Vercel API로 통계 로드 (API 키 완전히 숨김) 🔒
-        async function loadStats() {
-            try {
-                // Vercel Serverless Function 호출
-                const response = await fetch(`/api/youtube?videoId=${VIDEO_ID}`);
-                const data = await response.json();
-                
-                if (data.statistics) {
-                    const statistics = data.statistics;
-                    
-                    document.getElementById('views').textContent = formatNumber(parseInt(statistics.viewCount || 0));
-                    document.getElementById('likes').textContent = formatNumber(parseInt(statistics.likeCount || 0));
-                    document.getElementById('comments').textContent = formatNumber(parseInt(statistics.commentCount || 0));
-                    
-                    // 마지막 업데이트 시간
-                    document.getElementById('last-update').textContent = formatTime();
-                }
 
-                // 썸네일 설정
-                if (data.snippet && data.snippet.thumbnails) {
-                    const thumbnail = data.snippet.thumbnails.medium || data.snippet.thumbnails.default;
-                    document.getElementById('thumbnail-img').src = thumbnail.url;
-                    document.getElementById('thumbnail-link').href = `https://www.youtube.com/watch?v=${VIDEO_ID}`;
-                }
-            } catch (error) {
-                console.error('API 에러:', error);
-                document.getElementById('last-update').textContent = '업데이트 실패';
-            }
-        }
     </script>
 </body>
 </html>
