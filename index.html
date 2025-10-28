@@ -30,7 +30,7 @@
         <!-- 헤더 -->
         <div class="text-center mb-4 md:mb-6">
             <h1 class="text-xl md:text-3xl lg:text-4xl font-bold text-gray-800">
-                🔥민호특공대 실시간 총공 현황🔥
+                🔥절대지켜호~~🔥
             </h1>
         </div>
 
@@ -56,7 +56,7 @@
                     <img id="thumbnail-img" src="" alt="영상 썸네일" 
                          class="rounded-lg border-2 md:border-3 border-teal-400 shadow-xl thumbnail-hover transition-all duration-300 cursor-pointer mb-3">
                 </a>
-                <p id="song-title" class="text-base md:text-lg font-bold text-gray-800">내게 남은 사랑을 드릴께요</p>
+                <p id="song-title" class="text-base md:text-lg font-bold text-gray-800">한계령 (Hankyeryeong Pass)</p>
             </div>
         </div>
 
@@ -90,9 +90,9 @@
 
     <script>
         // ⚠️ 설정: YouTube 영상 ID
-        const VIDEO_ID = 'nczfiJBMA2U';
-        const MIN_TIME = 45;
-        const MAX_TIME = 50;
+        const VIDEO_ID = 'ZJo6KHpI-2k';
+        const MIN_TIME = 38;
+        const MAX_TIME = 43;
         const API_KEY = 'AIzaSyCJm0Vn3_f54LqVFs5hMGwsqWGk0nVkiiY';
         
         let player;
@@ -161,7 +161,7 @@
             }
         }
 
-        // 0초부터 45~50초 랜덤 재생
+        // 0초부터 38~43초 랜덤 재생
         function playFromStart() {
             if (!player || !player.seekTo) return;
             targetStopTime = MIN_TIME + Math.random() * (MAX_TIME - MIN_TIME);
