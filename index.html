@@ -40,7 +40,7 @@
                 <div id="youtube-player" class="w-full h-full"></div>
             </div>
 
-            <!-- 타이머 표시 (영상 아래) -->
+            <!-- 타이머 표시 -->
             <div class="text-center mb-4">
                 <div class="inline-block bg-gradient-to-r from-pink-500 to-purple-500 px-4 py-2 md:px-6 md:py-3 rounded-full shadow-lg">
                     <span class="text-white text-sm md:text-lg font-semibold">
@@ -49,16 +49,7 @@
                 </div>
             </div>
 
-            <!-- 썸네일 링크 -->
-            <div class="text-center">
-                <a id="thumbnail-link" href="#" target="_blank" rel="noopener noreferrer" class="inline-block">
-                    <img id="thumbnail-img" src="" alt="영상 썸네일" 
-                         class="w-40 h-30 md:w-56 md:h-42 rounded-lg border-3 border-pink-400 shadow-xl thumbnail-hover transition-all duration-300 cursor-pointer">
-                </a>
-                <p class="text-xs md:text-sm text-gray-600 mt-2 font-medium">
-                    👆 썸네일 클릭 → 유튜브 새창 열림 (재생 유지)
-                </p>
-            </div>
+
         </div>
 
         <!-- 통계 섹션 -->
@@ -85,21 +76,27 @@
                     <div class="text-gray-500 text-xs mt-1 md:mt-2">💬</div>
                 </div>
             </div>
-        </div>
 
-
+        // ⚠️ 여기에 YouTube 영상 ID를 입력하세요
+        const VIDEO_ID = 'nczfiJBMA2U';
+        const API_KEY = 'AIzaSyBt2uGMOK2izAperlAOSC66KDsSw1uoYMs';
+        const MIN_TIME = 45;
+        const MAX_TIME = 50;
         
         let player;
         let checkInterval;
         let targetStopTime = 0;
 
+        function formatNumber(num) {
+            return num.toLocaleString('ko-KR');
+        }
 
+        // YouTube IFrame API 로드
         var tag = document.createElement('script');
         tag.src = 'https://www.youtube.com/iframe_api';
         var firstScriptTag = document.getElementsByTagName('script')[0];
         firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
-        // API 준비 완료 시 호출
         function onYouTubeIframeAPIReady() {
             player = new YT.Player('youtube-player', {
                 videoId: VIDEO_ID,
@@ -116,61 +113,41 @@
             });
         }
 
-        // 플레이어 준비 완료
         function onPlayerReady(event) {
             loadStats();
-            
-            // 30초마다 통계 업데이트
             setInterval(loadStats, 30000);
-            
-            // 1초 후 첫 재생 시작
             setTimeout(() => {
                 playFromStart();
             }, 1000);
         }
 
-        // 플레이어 상태 변경
         function onPlayerStateChange(event) {
             if (event.data == YT.PlayerState.PLAYING) {
                 startTimer();
             }
         }
 
-        // 0초부터 시작하여 45~50초 랜덤 재생
         function playFromStart() {
             if (!player || !player.seekTo) return;
-            
-            // 45~50초 사이에서 랜덤으로 정지 시간 설정
             targetStopTime = MIN_TIME + Math.random() * (MAX_TIME - MIN_TIME);
-            
             console.log('🎵 0초부터 시작 → ' + targetStopTime.toFixed(1) + '초에 정지 예정');
-            
-            // 0초부터 시작
             player.seekTo(0, true);
             player.playVideo();
         }
 
-        // 타이머 시작
         function startTimer() {
             if (checkInterval) {
                 clearInterval(checkInterval);
             }
-
             checkInterval = setInterval(() => {
                 if (player && player.getCurrentTime) {
                     const currentTime = player.getCurrentTime();
                     const remaining = targetStopTime - currentTime;
-                    
-                    // 목표 시간까지 남은 시간 표시
                     const remainingSeconds = Math.max(0, Math.floor(remaining));
                     document.getElementById('timer').textContent = remainingSeconds;
-
-                    // 목표 시간에 도달하면 즉시 새로운 재생 (0초 간격)
                     if (currentTime >= targetStopTime - 0.3) {
                         console.log('✅ ' + targetStopTime.toFixed(1) + '초 도달! 즉시 새로 시작');
                         clearInterval(checkInterval);
-                        
-                        // 즉시 다시 0초부터 시작 (0초 간격)
                         playFromStart();
                     }
                 }
