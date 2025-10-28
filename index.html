@@ -3,483 +3,230 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>음악 플레이어</title>
+    <title>🎵 내게남은 사랑을 드릴께요 - 민호 실시간 총공</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
-            min-height: 100vh;
-            padding: 10px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
         }
-
-        .header-image {
-            width: 100%;
-            max-width: 700px;
-            margin: 0 auto 15px;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            border: 2px solid rgba(255, 255, 255, 0.8);
-        }
-
-        .header-image img {
-            width: 100%;
-            height: auto;
-            display: block;
-        }
-
-        .container {
-            max-width: 700px;
-            margin: 0 auto;
-        }
-
-        .player-wrapper {
-            background: white;
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-            border: 2px solid rgba(230, 230, 250, 0.5);
-        }
-
-        .song-title {
-            font-size: 16px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 12px;
-            text-align: center;
-        }
-
-        .video-container {
-            position: relative;
-            padding-bottom: 56.25%;
-            height: 0;
-            overflow: hidden;
-            border-radius: 10px;
-            margin-bottom: 12px;
-            border: 2px solid #e8eaf6;
-        }
-
-        .video-container iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border-radius: 8px;
-        }
-
-        .timer-container {
-            background: transparent;
-            padding: 8px;
-            border-radius: 8px;
-            text-align: center;
-            border: 3px solid rgba(159, 168, 218, 0.8);
-            margin-bottom: 0;
-        }
-
-        .timer-label {
-            color: #5c6bc0;
-            font-size: 10px;
-            margin-bottom: 4px;
-            font-weight: 600;
-        }
-
-        .timer-display {
-            font-size: 18px;
-            font-weight: bold;
-            color: #5c6bc0;
-            font-family: 'Courier New', monospace;
-            letter-spacing: 1px;
-        }
-
-        .youtube-links-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            max-width: 700px;
-            margin: 20px auto 20px;
-            padding: 0 10px;
-        }
-
-        .youtube-link-wrapper {
-            text-align: center;
-        }
-
-        .youtube-link {
-            display: block;
-            position: relative;
-            overflow: hidden;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .youtube-link:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 25px rgba(0,0,0,0.3);
-        }
-
-        .youtube-link img {
-            width: 100%;
-            display: block;
-            transition: transform 0.3s ease;
-        }
-
-        .youtube-link:hover img {
+        .thumbnail-hover:hover {
             transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
         }
-
-        .youtube-link::after {
-            content: '▶';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 50px;
-            color: rgba(255, 255, 255, 0.9);
-            text-shadow: 0 0 20px rgba(0,0,0,0.5);
-            pointer-events: none;
+        .stat-card {
             transition: all 0.3s ease;
         }
-
-        .youtube-link:hover::after {
-            font-size: 60px;
-            color: #ff0000;
-            text-shadow: 0 0 30px rgba(255,0,0,0.8);
-        }
-
-        .link-label {
-            text-align: center;
-            margin-top: 8px;
-            font-size: 12px;
-            color: #5c6bc0;
-            font-weight: 600;
-        }
-
-        .hidden {
-            display: none;
-        }
-
-        /* 모바일 최적화 */
-        @media (max-width: 768px) {
-            body {
-                padding: 8px;
-            }
-
-            .header-image {
-                margin-bottom: 12px;
-                border-radius: 10px;
-            }
-
-            .player-wrapper {
-                padding: 12px;
-                border-radius: 10px;
-            }
-
-            .song-title {
-                font-size: 14px;
-                margin-bottom: 10px;
-            }
-
-            .timer-container {
-                padding: 6px;
-                border-radius: 8px;
-            }
-
-            .timer-label {
-                font-size: 9px;
-                margin-bottom: 3px;
-            }
-
-            .timer-display {
-                font-size: 16px;
-            }
-
-            .video-container {
-                border-radius: 8px;
-            }
-
-            .youtube-links-container {
-                gap: 12px;
-                margin: 15px auto 15px;
-            }
-
-            .youtube-link::after {
-                font-size: 40px;
-            }
-
-            .youtube-link:hover::after {
-                font-size: 50px;
-            }
-
-            .link-label {
-                font-size: 11px;
-            }
-        }
-
-        /* 작은 모바일 */
-        @media (max-width: 480px) {
-            .timer-display {
-                font-size: 14px;
-            }
-
-            .timer-label {
-                font-size: 8px;
-            }
-
-            .song-title {
-                font-size: 13px;
-            }
-
-            .youtube-link::after {
-                font-size: 35px;
-            }
-
-            .link-label {
-                font-size: 10px;
-            }
+        .stat-card:hover {
+            transform: translateY(-5px);
         }
     </style>
 </head>
-<body>
-    <div class="header-image">
-        <img src="preview2.jpg" alt="배경 이미지">
+<body class="min-h-screen bg-gradient-to-br from-pink-50 via-white to-purple-100 p-2 md:p-4">
+    <div class="max-w-4xl mx-auto">
+        <!-- 헤더 -->
+        <div class="text-center mb-4 md:mb-6">
+            <h1 class="text-xl md:text-3xl lg:text-4xl font-bold text-gray-800 mb-2">
+                🔥민호특공대 실시간 총공 현황🔥
+            </h1>
+            <h2 class="text-lg md:text-2xl font-semibold text-pink-600">
+                🎵 내게남은 사랑을 드릴께요
+            </h2>
+        </div>
+
+        <!-- 비디오 플레이어 섹션 -->
+        <div class="bg-white rounded-2xl p-3 md:p-6 mb-4 md:mb-6 shadow-lg border-2 border-pink-300">
+            <!-- YouTube 플레이어 -->
+            <div class="relative aspect-video bg-black rounded-lg overflow-hidden border-2 border-pink-300 mb-3 md:mb-4">
+                <div id="youtube-player" class="w-full h-full"></div>
+            </div>
+
+            <!-- 타이머 표시 (영상 아래) -->
+            <div class="text-center mb-4">
+                <div class="inline-block bg-gradient-to-r from-pink-500 to-purple-500 px-4 py-2 md:px-6 md:py-3 rounded-full shadow-lg">
+                    <span class="text-white text-sm md:text-lg font-semibold">
+                        다음 곡까지 <span id="timer" class="text-xl md:text-2xl font-bold">0</span>초
+                    </span>
+                </div>
+            </div>
+
+            <!-- 썸네일 링크 -->
+            <div class="text-center">
+                <a id="thumbnail-link" href="#" target="_blank" rel="noopener noreferrer" class="inline-block">
+                    <img id="thumbnail-img" src="" alt="영상 썸네일" 
+                         class="w-40 h-30 md:w-56 md:h-42 rounded-lg border-3 border-pink-400 shadow-xl thumbnail-hover transition-all duration-300 cursor-pointer">
+                </a>
+                <p class="text-xs md:text-sm text-gray-600 mt-2 font-medium">
+                    👆 썸네일 클릭 → 유튜브 새창 열림 (재생 유지)
+                </p>
+            </div>
+        </div>
+
+        <!-- 통계 섹션 -->
+        <div class="bg-white rounded-2xl p-3 md:p-6 shadow-lg border-2 border-pink-300">
+            <div class="grid grid-cols-3 gap-2 md:gap-6">
+                <!-- 조회수 -->
+                <div class="stat-card rounded-xl p-3 md:p-6 text-center border-2 md:border-4 border-pink-400 bg-gradient-to-br from-pink-50 to-white">
+                    <div class="text-pink-600 text-xs md:text-sm mb-1 md:mb-2 font-bold">조회수</div>
+                    <div id="views" class="text-gray-800 text-base md:text-3xl font-bold break-words">0</div>
+                    <div class="text-gray-500 text-xs mt-1 md:mt-2">👁️</div>
+                </div>
+
+                <!-- 좋아요 -->
+                <div class="stat-card rounded-xl p-3 md:p-6 text-center border-2 md:border-4 border-purple-400 bg-gradient-to-br from-purple-50 to-white">
+                    <div class="text-purple-600 text-xs md:text-sm mb-1 md:mb-2 font-bold">좋아요</div>
+                    <div id="likes" class="text-gray-800 text-base md:text-3xl font-bold break-words">0</div>
+                    <div class="text-gray-500 text-xs mt-1 md:mt-2">👍</div>
+                </div>
+
+                <!-- 댓글 -->
+                <div class="stat-card rounded-xl p-3 md:p-6 text-center border-2 md:border-4 border-pink-400 bg-gradient-to-br from-pink-50 to-white">
+                    <div class="text-pink-600 text-xs md:text-sm mb-1 md:mb-2 font-bold">댓글</div>
+                    <div id="comments" class="text-gray-800 text-base md:text-3xl font-bold break-words">0</div>
+                    <div class="text-gray-500 text-xs mt-1 md:mt-2">💬</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 마지막 업데이트 시간 -->
+        <div class="text-center mt-4 text-xs md:text-sm text-gray-500">
+            <p>마지막 업데이트: <span id="last-update">-</span></p>
+            <p class="mt-1">💖 민호 사랑해요! 💖</p>
+        </div>
     </div>
 
-    <div class="container">
-        <!-- 첫 번째 곡 -->
-        <div class="player-wrapper" id="player1">
-            <div class="song-title">홀로된 사랑 (Lonely Love) Official MV</div>
-            <div class="video-container">
-                <div id="video1"></div>
-            </div>
-            <div class="timer-container">
-                <div class="timer-label">다음 곡까지</div>
-                <div class="timer-display" id="timer1">00초</div>
-            </div>
-        </div>
-
-        <!-- 두 번째 곡 -->
-        <div class="player-wrapper hidden" id="player2">
-            <div class="song-title">'내게 남은 사랑을 드릴께요 ' Official MV</div>
-            <div class="video-container">
-                <div id="video2"></div>
-            </div>
-            <div class="timer-container">
-                <div class="timer-label">다음 곡까지</div>
-                <div class="timer-display" id="timer2">00초</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 유튜브 링크 섹션 -->
-    <div class="youtube-links-container">
-        <div class="youtube-link-wrapper">
-            <a href="https://www.youtube.com/watch?v=jXJKJc5fZnE" target="_blank" class="youtube-link">
-                <img src="https://img.youtube.com/vi/jXJKJc5fZnE/maxresdefault.jpg" alt="홀로된 사랑">
-            </a>
-            <div class="link-label">🎵 홀로된 사랑</div>
-        </div>
-        <div class="youtube-link-wrapper">
-            <a href="https://www.youtube.com/watch?v=nczfiJBMA2U" target="_blank" class="youtube-link">
-                <img src="https://img.youtube.com/vi/nczfiJBMA2U/maxresdefault.jpg" alt="내게 남은 사랑을 드릴께요">
-            </a>
-            <div class="link-label">🎵 내게 남은 사랑을 드릴께요</div>
-        </div>
-    </div>
-
-    <script src="https://www.youtube.com/iframe_api"></script>
     <script>
-        let players = {};
-        let currentSong = 1;
-        let autoSwitchTimeout = null;
-        let countdownInterval = null;
-        let targetTime = 0;
+        // ⚠️ 여기에 "내게남은 사랑을 드릴께요" YouTube 영상 ID를 입력하세요
+        const VIDEO_ID = 'nczfiJBMA2U';  // 실제 영상 ID로 교체 필요
         
-        // 타이머 상태 관리
-        const timers = {
-            1: { 
-                countdown: 0, 
-                running: false
-            },
-            2: { 
-                countdown: 0, 
-                running: false
-            }
-        };
+        const MIN_TIME = 45;  // 45초
+        const MAX_TIME = 50;  // 50초
+        
+        let player;
+        let checkInterval;
+        let targetStopTime = 0;
 
-        // YouTube IFrame API가 준비되면 호출
+        // 숫자 포맷팅 함수
+        function formatNumber(num) {
+            return num.toLocaleString('ko-KR');
+        }
+
+        // 시간 포맷팅 함수
+        function formatTime() {
+            const now = new Date();
+            return now.toLocaleTimeString('ko-KR');
+        }
+
+        // YouTube IFrame API 로드
+        var tag = document.createElement('script');
+        tag.src = 'https://www.youtube.com/iframe_api';
+        var firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+        // API 준비 완료 시 호출
         function onYouTubeIframeAPIReady() {
-            players[1] = new YT.Player('video1', {
-                videoId: 'jXJKJc5fZnE',
+            player = new YT.Player('youtube-player', {
+                videoId: VIDEO_ID,
                 playerVars: {
-                    'enablejsapi': 1,
-                    'origin': window.location.origin,
-                    'autoplay': 1,
-                    'mute': 1,
-                    'rel': 0
+                    autoplay: 0,
+                    controls: 1,
+                    modestbranding: 1,
+                    rel: 0
                 },
                 events: {
-                    'onReady': (event) => onPlayerReady(event, 1),
-                    'onStateChange': (event) => onPlayerStateChange(event, 1)
-                }
-            });
-
-            players[2] = new YT.Player('video2', {
-                videoId: 'nczfiJBMA2U',
-                playerVars: {
-                    'enablejsapi': 1,
-                    'origin': window.location.origin,
-                    'rel': 0
-                },
-                events: {
-                    'onReady': (event) => onPlayerReady(event, 2),
-                    'onStateChange': (event) => onPlayerStateChange(event, 2)
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange
                 }
             });
         }
 
-        function onPlayerReady(event, songNum) {
-            // 첫 번째 곡은 자동 재생
-            if (songNum === 1) {
-                event.target.playVideo();
-            }
-        }
-
-        function getRandomTime() {
-            // 40초~45초 사이의 랜덤 시간 (초 단위)
-            return Math.floor(40 + Math.random() * 6);
-        }
-
-        function onPlayerStateChange(event, songNum) {
-            if (event.data === YT.PlayerState.PLAYING) {
-                // 재생 시작
-                startCountdown(songNum);
-                
-            } else if (event.data === YT.PlayerState.PAUSED) {
-                // 일시정지
-                pauseCountdown(songNum);
-            } else if (event.data === YT.PlayerState.ENDED) {
-                // 곡 종료
-                pauseCountdown(songNum);
-                goToNextSong();
-            }
-        }
-
-        function updateDisplay(timerNum) {
-            document.getElementById(`timer${timerNum}`).textContent = 
-                `${String(timers[timerNum].countdown).padStart(2, '0')}초`;
-        }
-
-        function startCountdown(timerNum) {
-            if (timers[timerNum].running) return;
+        // 플레이어 준비 완료
+        function onPlayerReady(event) {
+            loadStats();
             
-            // 랜덤 시간 설정
-            targetTime = getRandomTime();
-            timers[timerNum].countdown = targetTime;
-            timers[timerNum].running = true;
-            updateDisplay(timerNum);
+            // 30초마다 통계 업데이트
+            setInterval(loadStats, 30000);
             
-            // 기존 타이머 제거
-            if (autoSwitchTimeout) {
-                clearTimeout(autoSwitchTimeout);
-            }
-            if (countdownInterval) {
-                clearInterval(countdownInterval);
-            }
-            
-            // 카운트다운 시작
-            countdownInterval = setInterval(() => {
-                timers[timerNum].countdown--;
-                updateDisplay(timerNum);
-                
-                if (timers[timerNum].countdown <= 0) {
-                    clearInterval(countdownInterval);
-                    goToNextSong();
-                }
+            // 1초 후 첫 재생 시작
+            setTimeout(() => {
+                playFromStart();
             }, 1000);
         }
 
-        function pauseCountdown(timerNum) {
-            if (!timers[timerNum].running) return;
-            
-            timers[timerNum].running = false;
-            if (countdownInterval) {
-                clearInterval(countdownInterval);
-            }
-            if (autoSwitchTimeout) {
-                clearTimeout(autoSwitchTimeout);
+        // 플레이어 상태 변경
+        function onPlayerStateChange(event) {
+            if (event.data == YT.PlayerState.PLAYING) {
+                startTimer();
             }
         }
 
-        function resetCountdown(timerNum) {
-            timers[timerNum].running = false;
-            timers[timerNum].countdown = 0;
-            updateDisplay(timerNum);
-            if (countdownInterval) {
-                clearInterval(countdownInterval);
-            }
+        // 0초부터 시작하여 45~50초 랜덤 재생
+        function playFromStart() {
+            if (!player || !player.seekTo) return;
+            
+            // 45~50초 사이에서 랜덤으로 정지 시간 설정
+            targetStopTime = MIN_TIME + Math.random() * (MAX_TIME - MIN_TIME);
+            
+            console.log('🎵 0초부터 시작 → ' + targetStopTime.toFixed(1) + '초에 정지 예정');
+            
+            // 0초부터 시작
+            player.seekTo(0, true);
+            player.playVideo();
         }
 
-        function goToNextSong() {
-            // 기존 타이머 제거
-            if (autoSwitchTimeout) {
-                clearTimeout(autoSwitchTimeout);
+        // 타이머 시작
+        function startTimer() {
+            if (checkInterval) {
+                clearInterval(checkInterval);
             }
-            if (countdownInterval) {
-                clearInterval(countdownInterval);
-            }
-            
-            if (currentSong === 1) {
-                // 첫 번째 곡 숨기기
-                document.getElementById('player1').classList.add('hidden');
-                document.getElementById('player2').classList.remove('hidden');
-                
-                // 첫 번째 곡 정지
-                if (players[1]) {
-                    players[1].pauseVideo();
+
+            checkInterval = setInterval(() => {
+                if (player && player.getCurrentTime) {
+                    const currentTime = player.getCurrentTime();
+                    const remaining = targetStopTime - currentTime;
+                    
+                    // 목표 시간까지 남은 시간 표시
+                    const remainingSeconds = Math.max(0, Math.floor(remaining));
+                    document.getElementById('timer').textContent = remainingSeconds;
+
+                    // 목표 시간에 도달하면 즉시 새로운 재생 (0초 간격)
+                    if (currentTime >= targetStopTime - 0.3) {
+                        console.log('✅ ' + targetStopTime.toFixed(1) + '초 도달! 즉시 새로 시작');
+                        clearInterval(checkInterval);
+                        
+                        // 즉시 다시 0초부터 시작 (0초 간격)
+                        playFromStart();
+                    }
                 }
-                pauseCountdown(1);
+            }, 100);
+        }
+
+        // Vercel API로 통계 로드 (API 키 완전히 숨김) 🔒
+        async function loadStats() {
+            try {
+                // Vercel Serverless Function 호출
+                const response = await fetch(`/api/youtube?videoId=${VIDEO_ID}`);
+                const data = await response.json();
                 
-                // 두 번째 곡 재생 및 타이머 리셋
-                resetCountdown(2);
-                if (players[2] && players[2].seekTo) {
-                    setTimeout(() => {
-                        players[2].seekTo(0);
-                        players[2].playVideo();
-                    }, 500);
+                if (data.statistics) {
+                    const statistics = data.statistics;
+                    
+                    document.getElementById('views').textContent = formatNumber(parseInt(statistics.viewCount || 0));
+                    document.getElementById('likes').textContent = formatNumber(parseInt(statistics.likeCount || 0));
+                    document.getElementById('comments').textContent = formatNumber(parseInt(statistics.commentCount || 0));
+                    
+                    // 마지막 업데이트 시간
+                    document.getElementById('last-update').textContent = formatTime();
                 }
-                
-                currentSong = 2;
-            } else {
-                // 두 번째 곡 숨기기
-                document.getElementById('player2').classList.add('hidden');
-                document.getElementById('player1').classList.remove('hidden');
-                
-                // 두 번째 곡 정지
-                if (players[2]) {
-                    players[2].pauseVideo();
+
+                // 썸네일 설정
+                if (data.snippet && data.snippet.thumbnails) {
+                    const thumbnail = data.snippet.thumbnails.medium || data.snippet.thumbnails.default;
+                    document.getElementById('thumbnail-img').src = thumbnail.url;
+                    document.getElementById('thumbnail-link').href = `https://www.youtube.com/watch?v=${VIDEO_ID}`;
                 }
-                pauseCountdown(2);
-                
-                // 첫 번째 곡 재생 및 타이머 리셋
-                resetCountdown(1);
-                if (players[1] && players[1].seekTo) {
-                    setTimeout(() => {
-                        players[1].seekTo(0);
-                        players[1].playVideo();
-                    }, 500);
-                }
-                
-                currentSong = 1;
+            } catch (error) {
+                console.error('API 에러:', error);
+                document.getElementById('last-update').textContent = '업데이트 실패';
             }
         }
     </script>
