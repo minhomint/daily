@@ -9,19 +9,9 @@
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
         }
-        .thumbnail-hover:hover {
-            transform: scale(1.05);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-        }
-        #thumbnail-img {
-            max-width: 100%;
-            width: 240px;
-            height: auto;
-        }
-        @media (min-width: 768px) {
-            #thumbnail-img {
-                width: 280px;
-            }
+        .song-title-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
     </style>
 </head>
@@ -50,15 +40,17 @@
                 </div>
             </div>
 
-            <!-- 썸네일 링크 (재생 멈추지 않음) -->
+            <!-- 노래 제목 및 유튜브 링크 -->
             <div class="text-center">
-                <a id="thumbnail-link" href="#" target="_blank" rel="noopener noreferrer" class="inline-block">
-                    <img id="thumbnail-img" src="" alt="영상 썸네일" 
-                         class="rounded-lg border-2 md:border-3 border-teal-400 shadow-xl thumbnail-hover transition-all duration-300 cursor-pointer">
+                <a id="song-link" href="#" target="_blank" rel="noopener noreferrer" 
+                   class="inline-block bg-gradient-to-r from-teal-50 to-pink-50 px-6 py-4 rounded-xl border-2 border-teal-300 song-title-hover transition-all duration-300 max-w-full">
+                    <div class="flex items-center justify-center gap-2 flex-wrap">
+                        <span class="text-2xl">🎵</span>
+                        <span id="song-title" class="text-base md:text-xl font-bold text-gray-800">로딩중...</span>
+                        <span class="text-lg">🎵</span>
+                    </div>
+                    <p class="text-xs md:text-sm text-gray-500 mt-2">👆 클릭하면 유튜브 새창 열림 (재생 유지)</p>
                 </a>
-                <p class="text-xs md:text-sm text-gray-600 mt-2 font-medium">
-                    👆 썸네일 클릭 → 유튜브 새창 열림 (재생 유지)
-                </p>
             </div>
         </div>
 
@@ -68,21 +60,21 @@
                 <!-- 조회수 -->
                 <div class="rounded-xl p-3 md:p-6 text-center transform hover:scale-105 transition-all border-2 md:border-4 border-teal-400 bg-white">
                     <div class="text-teal-600 text-xs md:text-sm mb-1 md:mb-2 font-bold">조회수</div>
-                    <div id="views" class="text-gray-800 text-base md:text-3xl font-bold break-words">로딩중...</div>
+                    <div id="views" class="text-gray-800 text-base md:text-3xl font-bold break-words">0</div>
                     <div class="text-gray-500 text-xs mt-1 md:mt-2">👁️</div>
                 </div>
 
                 <!-- 좋아요 -->
                 <div class="rounded-xl p-3 md:p-6 text-center transform hover:scale-105 transition-all border-2 md:border-4 border-pink-400 bg-white">
                     <div class="text-pink-500 text-xs md:text-sm mb-1 md:mb-2 font-bold">좋아요</div>
-                    <div id="likes" class="text-gray-800 text-base md:text-3xl font-bold break-words">로딩중...</div>
+                    <div id="likes" class="text-gray-800 text-base md:text-3xl font-bold break-words">0</div>
                     <div class="text-gray-500 text-xs mt-1 md:mt-2">👍</div>
                 </div>
 
                 <!-- 댓글 -->
                 <div class="rounded-xl p-3 md:p-6 text-center transform hover:scale-105 transition-all border-2 md:border-4 border-teal-400 bg-white">
                     <div class="text-teal-600 text-xs md:text-sm mb-1 md:mb-2 font-bold">댓글</div>
-                    <div id="comments" class="text-gray-800 text-base md:text-3xl font-bold break-words">로딩중...</div>
+                    <div id="comments" class="text-gray-800 text-base md:text-3xl font-bold break-words">0</div>
                     <div class="text-gray-500 text-xs mt-1 md:mt-2">💬</div>
                 </div>
             </div>
@@ -91,11 +83,11 @@
     </div>
 
     <script>
-        // ⚠️ 설정: 여기에 YouTube 영상 ID를 입력하세요
+        // ⚠️ 설정: YouTube 영상 ID
         const VIDEO_ID = 'nczfiJBMA2U';
-        const MIN_TIME = 45;  // 45초
-        const MAX_TIME = 50;  // 50초
-        const API_KEY = 'AIzaSyBt2uGMOK2izAperlAOSC66KDsSw1uoYMs';
+        const MIN_TIME = 45;
+        const MAX_TIME = 50;
+        const API_KEY = 'AIzaSyCJm0Vn3_f54LqVFs5hMGwsqWGk0nVkiiY';
         
         let player;
         let checkInterval;
@@ -104,21 +96,6 @@
         // 숫자 포맷팅
         function formatNumber(num) {
             return num.toLocaleString('ko-KR');
-        }
-
-        // 썸네일 즉시 설정
-        function setThumbnail() {
-            const thumbnailImg = document.getElementById('thumbnail-img');
-            const thumbnailLink = document.getElementById('thumbnail-link');
-            
-            // YouTube 기본 썸네일 (항상 작동)
-            thumbnailImg.src = `https://img.youtube.com/vi/${VIDEO_ID}/hqdefault.jpg`;
-            thumbnailLink.href = `https://www.youtube.com/watch?v=${VIDEO_ID}`;
-            
-            thumbnailImg.onerror = function() {
-                this.onerror = null;
-                this.src = `https://img.youtube.com/vi/${VIDEO_ID}/mqdefault.jpg`;
-            };
         }
 
         // YouTube IFrame API 로드
@@ -147,7 +124,10 @@
         // 플레이어 준비 완료
         function onPlayerReady(event) {
             loadStats();
-            setInterval(loadStats, 30000);  // 30초마다 업데이트
+            
+            // 60초마다 통계 업데이트
+            setInterval(loadStats, 60000);
+            
             setTimeout(() => {
                 playFromStart();
             }, 1000);
@@ -184,7 +164,7 @@
                     if (currentTime >= targetStopTime - 0.3) {
                         console.log('✅ ' + targetStopTime.toFixed(1) + '초 도달! 새로 시작');
                         clearInterval(checkInterval);
-                        playFromStart();  // 0초 간격으로 즉시 재시작
+                        playFromStart();
                     }
                 }
             }, 100);
@@ -196,20 +176,7 @@
                 const response = await fetch(
                     `https://www.googleapis.com/youtube/v3/videos?part=statistics,snippet&id=${VIDEO_ID}&key=${API_KEY}`
                 );
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP 오류! status: ${response.status}`);
-                }
-                
                 const data = await response.json();
-                
-                if (data.error) {
-                    console.error('YouTube API 오류:', data.error.message);
-                    document.getElementById('views').textContent = 'API 오류';
-                    document.getElementById('likes').textContent = 'API 오류';
-                    document.getElementById('comments').textContent = 'API 오류';
-                    return;
-                }
                 
                 if (data.items && data.items.length > 0) {
                     const video = data.items[0];
@@ -221,31 +188,16 @@
                     document.getElementById('likes').textContent = formatNumber(parseInt(statistics.likeCount || 0));
                     document.getElementById('comments').textContent = formatNumber(parseInt(statistics.commentCount || 0));
                     
-                    // 더 좋은 썸네일로 업데이트
-                    if (snippet.thumbnails) {
-                        const thumbnail = snippet.thumbnails.medium || snippet.thumbnails.high || snippet.thumbnails.default;
-                        if (thumbnail && thumbnail.url) {
-                            document.getElementById('thumbnail-img').src = thumbnail.url;
-                        }
-                    }
+                    // 노래 제목 및 링크 설정
+                    document.getElementById('song-title').textContent = snippet.title;
+                    document.getElementById('song-link').href = `https://www.youtube.com/watch?v=${VIDEO_ID}`;
                     
-                    console.log('✅ 통계 업데이트 성공!');
-                } else {
-                    console.error('영상 정보를 찾을 수 없습니다.');
-                    document.getElementById('views').textContent = '정보 없음';
-                    document.getElementById('likes').textContent = '정보 없음';
-                    document.getElementById('comments').textContent = '정보 없음';
+                    console.log('✅ 통계 업데이트 완료 (60초마다)');
                 }
             } catch (error) {
                 console.error('YouTube API 에러:', error);
-                document.getElementById('views').textContent = '연결 실패';
-                document.getElementById('likes').textContent = '연결 실패';
-                document.getElementById('comments').textContent = '연결 실패';
             }
         }
-        
-        // 페이지 로드시 썸네일 즉시 설정
-        setThumbnail();
     </script>
 </body>
 </html>
