@@ -1509,11 +1509,11 @@
                         </div>
                 `;
                 
-                const verses = Object.keys(chapterGroups[chapter]).sort((a, b) => {
-                    const [verseA] = a.split(':').map(Number);
-                    const [verseB] = b.split(':').map(Number);
-                    return verseA - verseB;
-                });
+               const verses = Object.keys(chapterGroups[chapter]).sort((a, b) => {
+    const verseA = parseInt(a.split(':')[1]);
+    const verseB = parseInt(b.split(':')[1]);
+    return verseA - verseB;
+});
                 
                 verses.forEach(verseKey => {
                     const questions = chapterGroups[chapter][verseKey];
@@ -1895,3 +1895,4 @@
     </script>
 </body>
 </html>
+
