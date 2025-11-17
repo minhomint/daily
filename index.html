@@ -712,6 +712,46 @@
         }
 
         @media (max-width: 768px) {
+             /* 단계 선택 개선 */
+    .level-selector {
+        flex-wrap: nowrap !important;  /* 줄바꿈 방지 */
+        justify-content: flex-start !important;
+        overflow-x: auto !important;
+        padding: 15px 10px !important;
+    }
+    
+    .level-btn {
+        flex-shrink: 0;  /* 버튼 크기 고정 */
+        min-width: 80px;
+    }
+    
+    /* 스크롤 가능 표시 */
+    .level-selector::after,
+    .month-filter::after {
+        content: '→ 스크롤';
+        position: sticky;
+        right: 0;
+        background: linear-gradient(to right, transparent, white 30%);
+        padding: 5px 10px 5px 30px;
+        color: #667eea;
+        font-size: 12px;
+        font-weight: bold;
+        white-space: nowrap;
+        pointer-events: none;
+    }
+    
+    /* 월 선택 개선 */
+    .month-filter {
+        justify-content: flex-start !important;
+        padding-right: 50px;  /* 스크롤 힌트 공간 */
+    }
+    
+    .month-btn {
+        flex-shrink: 0;
+        white-space: nowrap;
+    }
+        }
+        
             .header {
                 text-align: center;
             }
@@ -1903,5 +1943,6 @@
     </script>
 </body>
 </html>
+
 
 
