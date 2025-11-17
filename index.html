@@ -438,7 +438,7 @@
         /* 마무리 모드 스타일 */
         .review-header {
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 30px;
             padding: 30px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border-radius: 15px;
@@ -453,6 +453,45 @@
         .review-header p {
             font-size: 16px;
             opacity: 0.9;
+        }
+
+        .chapter-filter {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            flex-wrap: wrap;
+            justify-content: center;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .chapter-filter-btn {
+            padding: 10px 20px;
+            background: #e2e8f0;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.3s;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .chapter-filter-btn:hover {
+            background: #cbd5e0;
+            transform: translateY(-2px);
+        }
+
+        .chapter-filter-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #5a67d8;
+            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
         }
 
         .chapter-section {
@@ -562,6 +601,7 @@
         }
 
         .question-answer-review {
+            display: none;
             color: #38a169;
             font-size: 16px;
             padding: 15px;
@@ -571,6 +611,11 @@
             line-height: 1.7;
             border-left: 4px solid #38a169;
             white-space: pre-wrap;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        .question-answer-review.show {
+            display: block;
         }
 
         .stats-badge {
@@ -639,7 +684,7 @@
                 padding: 0;
             }
 
-            .header, .level-selector, .mode-selector, .print-btn, .month-filter, .logout-btn, .toggle-answer-btn {
+            .header, .level-selector, .mode-selector, .print-btn, .month-filter, .logout-btn, .toggle-answer-btn, .chapter-filter {
                 display: none !important;
             }
 
@@ -773,6 +818,7 @@
                         <h2>📖 계시록 장별 기출문제 총정리</h2>
                         <p>1~3단계 모든 문제를 장·절 순서대로 정리했습니다</p>
                     </div>
+                    <div class="chapter-filter" id="chapterFilter"></div>
                     <div id="reviewContent"></div>
                 </div>
             </div>
@@ -785,11 +831,13 @@
         let currentMode = 'exam';
         let currentLevel = 2;
         let selectedMonth = '전체';
+        let selectedChapter = '전체';
 
         // ========================================
-        // 여기에 level1Data, level2Data, level3Data를 붙여넣으세요
+        // 🔥 여기에 데이터를 입력하세요 🔥
         // ========================================
-        // 1단계 데이터
+        
+       // 1단계 데이터
         const level1Data = [
             // 2월 1단계
             {id: 1021, month: '2월', number: '1번', content: '계시록 1장 1~8절의 제목을 쓰시오.', answer: '계시록 전장의 요약과 결론'},
@@ -1318,6 +1366,7 @@
         ];
 
 
+        // ========================================
         // 데이터 로드
         function loadData() {
             if (currentLevel === 1) {
@@ -1341,6 +1390,8 @@
             if (level === 'review') {
                 // 마무리 모드
                 document.getElementById('modeSelector').style.display = 'none';
+                selectedChapter = '전체';
+                renderChapterFilter();
                 renderReview();
                 showView('review');
             } else {
@@ -1381,15 +1432,42 @@
             }
         }
 
+        // 장 필터 렌더링
+        function renderChapterFilter() {
+            const filter = document.getElementById('chapterFilter');
+            const chapters = ['전체'];
+            for (let i = 1; i <= 22; i++) {
+                chapters.push(`${i}장`);
+            }
+            
+            let html = '';
+            chapters.forEach(chapter => {
+                const active = chapter === selectedChapter ? 'active' : '';
+                html += `<button class="chapter-filter-btn ${active}" onclick="filterByChapter('${chapter}')">${chapter}</button>`;
+            });
+            
+            filter.innerHTML = html;
+        }
+
+        // 장별 필터링
+        function filterByChapter(chapter) {
+            selectedChapter = chapter;
+            renderChapterFilter();
+            renderReview();
+        }
+
         // 마무리 모드 렌더링
         function renderReview() {
             const content = document.getElementById('reviewContent');
             const allQuestions = [...level1Data, ...level2Data, ...level3Data];
             
+            // 제목 문제 제외
+            const filteredQuestions = allQuestions.filter(q => !q.content.includes('제목을 쓰시오'));
+            
             // 장별로 그룹화
             const chapterGroups = {};
             
-            allQuestions.forEach(q => {
+            filteredQuestions.forEach(q => {
                 // 절 참조 추출 (계 X:Y)
                 const verseMatch = q.content.match(/계\s*(\d+):(\d+)/);
                 if (verseMatch) {
@@ -1407,30 +1485,19 @@
                     
                     chapterGroups[chapter][key].push(q);
                 }
-                
-                // 제목 문제 처리
-                const titleMatch = q.content.match(/계시록\s*(\d+)장.*제목/);
-                if (titleMatch) {
-                    const chapter = parseInt(titleMatch[1]);
-                    const key = `${chapter}:제목`;
-                    
-                    if (!chapterGroups[chapter]) {
-                        chapterGroups[chapter] = {};
-                    }
-                    
-                    if (!chapterGroups[chapter][key]) {
-                        chapterGroups[chapter][key] = [];
-                    }
-                    
-                    chapterGroups[chapter][key].push(q);
-                }
             });
+            
+            // 장 필터링 적용
+            let chaptersToShow = Object.keys(chapterGroups).sort((a, b) => parseInt(a) - parseInt(b));
+            if (selectedChapter !== '전체') {
+                const chapterNum = parseInt(selectedChapter);
+                chaptersToShow = chaptersToShow.filter(ch => parseInt(ch) === chapterNum);
+            }
             
             // HTML 생성
             let html = '';
-            const chapters = Object.keys(chapterGroups).sort((a, b) => parseInt(a) - parseInt(b));
             
-            chapters.forEach(chapter => {
+            chaptersToShow.forEach(chapter => {
                 const chapterQuestions = Object.values(chapterGroups[chapter]).flat();
                 const totalCount = chapterQuestions.length;
                 
@@ -1443,16 +1510,14 @@
                 `;
                 
                 const verses = Object.keys(chapterGroups[chapter]).sort((a, b) => {
-                    if (a.includes('제목')) return -1;
-                    if (b.includes('제목')) return 1;
-                    const [verseA] = a.split(':').map(v => v === '제목' ? 0 : Number(v));
-                    const [verseB] = b.split(':').map(v => v === '제목' ? 0 : Number(v));
+                    const [verseA] = a.split(':').map(Number);
+                    const [verseB] = b.split(':').map(Number);
                     return verseA - verseB;
                 });
                 
                 verses.forEach(verseKey => {
                     const questions = chapterGroups[chapter][verseKey];
-                    const displayKey = verseKey.includes('제목') ? '제목' : `${verseKey}절`;
+                    const displayKey = `${verseKey}절`;
                     const count = questions.length;
                     
                     html += `
@@ -1463,7 +1528,7 @@
                             </div>
                     `;
                     
-                    questions.forEach(q => {
+                    questions.forEach((q, qIdx) => {
                         let levelClass = '';
                         let levelName = '';
                         if (level1Data.find(item => item.id === q.id)) {
@@ -1477,6 +1542,9 @@
                             levelName = '3단계';
                         }
                         
+                        const hasBlank = q.content.includes('(       )');
+                        const uniqueId = `review-${chapter}-${verseKey}-${qIdx}`;
+                        
                         html += `
                             <div class="question-item">
                                 <div class="question-meta">
@@ -1484,14 +1552,29 @@
                                     <span class="meta-badge">${q.month}</span>
                                     <span class="meta-badge">${q.number}</span>
                                 </div>
+                        `;
+                        
+                        if (hasBlank) {
+                            const answers = parseAnswers(q.answer);
+                            const contentWithBlanks = createReviewInteractiveContent(q.content, answers, uniqueId);
+                            html += `
                                 <div class="question-content-review">
-                                    ${q.content}
+                                    ${contentWithBlanks}
                                 </div>
-                                <div class="question-answer-review">
+                            `;
+                        } else {
+                            html += `
+                                <div class="question-content-review" style="cursor: pointer;" onclick="toggleReviewAnswer('${uniqueId}')">
+                                    ${q.content}
+                                    <span style="color: #667eea; font-size: 14px; margin-left: 10px;">▼ 답안 보기</span>
+                                </div>
+                                <div class="question-answer-review" id="${uniqueId}">
                                     <strong>✅ 정답:</strong><br>${q.answer}
                                 </div>
-                            </div>
-                        `;
+                            `;
+                        }
+                        
+                        html += `</div>`;
                     });
                     
                     html += `</div>`;
@@ -1501,10 +1584,46 @@
             });
             
             if (html === '') {
-                html = '<p style="text-align: center; color: #a0aec0; padding: 40px;">데이터를 불러오는 중입니다...</p>';
+                html = '<p style="text-align: center; color: #a0aec0; padding: 40px;">해당 장의 데이터가 없습니다.</p>';
             }
             
             content.innerHTML = html;
+        }
+
+        // 마무리 모드 빈칸 문제 처리
+        function createReviewInteractiveContent(content, answers, baseId) {
+            let result = content;
+            let blankIndex = 0;
+            
+            result = result.replace(/\(       \)/g, () => {
+                if (blankIndex < answers.length) {
+                    const answer = answers[blankIndex];
+                    const blankId = `${baseId}-blank-${blankIndex}`;
+                    const html = `
+                        <span class="blank-container">
+                            <span class="blank-placeholder" id="${blankId}-placeholder" onclick="revealBlank('${blankId}')">
+                                <span class="blank-number">${blankIndex + 1}</span>❔
+                            </span>
+                            <span class="blank-answer" id="${blankId}-answer" onclick="hideBlank('${blankId}')">
+                                ${answer}
+                            </span>
+                        </span>
+                    `;
+                    blankIndex++;
+                    return html;
+                }
+                return '(       )';
+            });
+            
+            return result;
+        }
+
+        // 마무리 모드 일반 문제 답안 토글
+        function toggleReviewAnswer(id) {
+            const answerDiv = document.getElementById(id);
+            if (answerDiv) {
+                answerDiv.classList.toggle('show');
+            }
         }
 
         // 로그인
@@ -1539,6 +1658,7 @@
             document.getElementById('errorMessage').textContent = '';
             currentLevel = 2;
             selectedMonth = '전체';
+            selectedChapter = '전체';
         }
 
         // Enter 키로 로그인
@@ -1775,4 +1895,3 @@
     </script>
 </body>
 </html>
-
